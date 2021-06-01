@@ -13,6 +13,7 @@
     "mc-curseforge-api": "^2.2.3"
   },
   "devDependencies": {
+    "@vitalets/google-translate-api": "^7.0.0",
     "node-xlsx": "^0.16.1",
     "pkg": "^5.2.1"
   },
