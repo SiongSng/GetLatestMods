@@ -6,7 +6,7 @@
 ![img.png](img.png)
 
 ### 下載
-如需自行建置可參考下方的建置教學，如果不想自行建置可直接下載已經建置好的檔案
+如需自行建置可參考下方的建置教學，如果不想自行建置可直接下載已經建置好的檔案  
 Windows: [點我下載](https://github.com/SiongSng/GetLatestMods/raw/main/Build/Windows/GetLatestMods.exe)  
 Linux: (請自行建置)  
 MacOS: (請自行建置)
