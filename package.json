@@ -1,0 +1,26 @@
+{
+  "name": "getlatestmods",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Siongsng(菘菘#8663)",
+  "license": "MIT",
+  "dependencies": {
+    "mc-curseforge-api": "^2.2.3"
+  },
+  "devDependencies": {
+    "node-xlsx": "^0.16.1",
+    "pkg": "^5.2.1"
+  },
+  "bin": "index.js",
+  "pkg": {
+    "assets": [
+      "/node_modules/mc-curseforge-api",
+      "/node_modules/node-xlsx"
+    ]
+  }
+}
