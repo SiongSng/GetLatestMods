@@ -4,6 +4,8 @@ const xlsx = require('node-xlsx'); //試算表解析模塊
 const fs = require("fs");
 const options = {'!cols': [{wch: 8}, {wch: 25}, {wch: 75}, {wch: 65}, {wch: 60}, {wch: 8}, {wch: 25}, {wch: 25}]};
 const translate = require('@vitalets/google-translate-api');
+let TranslationProgress = 0;
+let num = 0;
 
 let Wdata = [{
     name: '照模組更新時間排序資訊小工具',
@@ -27,11 +29,13 @@ CurseForge.getMods({sort: 2, pageSize: config.PageSize, gameVersion: config.Game
     async function aaa() {
         console.log("正在翻譯模組敘述中，請稍後...")
         for (let i = 0; i < mods.length; i++) {
+            TranslationProgress ++
             let data = JSON.parse(JSON.stringify(mods[i]))
             if (Date.parse(data.created) > Date.parse(config.Date.split(">")[0]) && Date.parse(data.created) < Date.parse(config.Date.split(">")[1])) {
                 let Translated;
                 await translate(data.summary, {to: 'zh-TW'}).then(res => {
                     Translated = res.text;
+                    console.log(`翻譯進度: ${TranslationProgress / mods.length * 100}%`)
                 }).catch(err => {
                     console.error(err);
                 });
