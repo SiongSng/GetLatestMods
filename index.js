@@ -31,6 +31,18 @@ function delDir(path) { //資料夾/檔案迴圈刪除 程式碼來自:https://w
 
 let wb = new Excel.Workbook();
 let ws = wb.addWorksheet('模組資料表格', options);
+ws.column(1).setWidth(25);
+ws.column(1).setWidth(25);
+ws.column(3).setWidth(30);
+ws.column(4).setWidth(75);
+ws.column(5).setWidth(60);
+ws.column(6).setWidth(80);
+ws.column(8).setWidth(35);
+ws.column(9).setWidth(35);
+
+for (let i = 0; i < 10; i ++){
+    ws.row(i).setHeight(22.5)
+}
 
 let style = wb.createStyle({ //試算表格式
     font: {
@@ -77,17 +89,11 @@ CurseForge.getMods({sort: 2, pageSize: config.PageSize, gameVersion: config.Game
                             path: `./icon/${data.logo.url.toString().substr(43, 65)}`,
                             type: 'picture',
                              position: {
-                                 type: 'twoCellAnchor',
+                                 type: 'oneCellAnchor',
                                  from: {
                                      col: 1,
                                      colOff: 0,
-                                     row: 1,
-                                     rowOff: 0,
-                                 },
-                                 to: {
-                                     col: 2,
-                                     colOff: 0,
-                                     row: 5,
+                                     row: i,
                                      rowOff: 0,
                                  },
                              },
