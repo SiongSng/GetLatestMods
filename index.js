@@ -100,7 +100,7 @@ CurseForge.getMods({sort: 2, pageSize: config.PageSize, gameVersion: config.Game
                 let data = JSON.parse(JSON.stringify(mods[i]));
                 if (Date.parse(data.created) > Date.parse(config.Date.split(">")[0]) && Date.parse(data.created) < Date.parse(config.Date.split(">")[1])) {
                     num++
-                    addImage(data.logo.url, num);
+                    await addImage(data.logo.url, num);
                     let Translated;
                     await translate(data.summary, {to: 'zh-TW'}).then(res => {
                         console.log(`翻譯進度: ${TranslationProgress / num * 100}%`)
