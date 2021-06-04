@@ -54,11 +54,11 @@ ws.cell(1, 7).string("更新日期").style(style)
 ws.cell(1, 8).string("創建日期").style(style)
 
 delDir("./icon")
- if (!fs.existsSync("./icon")) {
-     fs.mkdir("./icon",function (err){
-         if (err) throw err;
-     });
- }
+if (!fs.existsSync("./icon")) {
+    fs.mkdir("./icon", function (err) {
+        if (err) throw err;
+    });
+}
 
 CurseForge.getMods({sort: 2, pageSize: config.PageSize, gameVersion: config.GameVersion}).then((mods) => {
 
@@ -69,29 +69,33 @@ CurseForge.getMods({sort: 2, pageSize: config.PageSize, gameVersion: config.Game
                 if (Date.parse(data.created) > Date.parse(config.Date.split(">")[0]) && Date.parse(data.created) < Date.parse(config.Date.split(">")[1])) {
                     num++
                     let stream = fs.createWriteStream(path.join(`./icon/${data.logo.url.toString().substr(43, 65)}`));
-                    request(data.logo.url).pipe(stream).on("close", function (err) {
+                    await request(data.logo.url).pipe(stream).on("close", function (err) {
                         if (err) throw err;
                         ws.row(num).setHeight(70 / 3);
                         ws.column(1).setWidth(15 / 3);
-                        ws.addImage({
-                            path: `./icon/${data.logo.url.toString().substr(43, 65)}`,
-                            type: 'picture',
-                            position: {
-                                type: 'twoCellAnchor',
-                                from: {
-                                    col: 1,
-                                    colOff: 0,
-                                    row: num + 1,
-                                    rowOff: 0,
+                        try {
+                            ws.addImage({
+                                path: `./icon/${data.logo.url.toString().substr(43, 65)}`,
+                                type: 'picture',
+                                position: {
+                                    type: 'twoCellAnchor',
+                                    from: {
+                                        col: 1,
+                                        colOff: 0,
+                                        row: num + 1,
+                                        rowOff: 0,
+                                    },
+                                    to: {
+                                        col: 2,
+                                        colOff: 0,
+                                        row: num + 2,
+                                        rowOff: 0,
+                                    },
                                 },
-                                to: {
-                                    col: 2,
-                                    colOff: 0,
-                                    row: num + 2,
-                                    rowOff: 0,
-                                },
-                            },
-                        });
+                            });
+                        } catch (err) {
+                            ws.cell(num + 1, 1).string("無效").style(style);
+                        }
                     })
                     let Translated;
                     await translate(data.summary, {to: 'zh-TW'}).then(res => {
