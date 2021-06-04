@@ -10,6 +10,37 @@ const translate = require('@vitalets/google-translate-api');
 let TranslationProgress = 0;
 let num = 0;
 
+function addImage(url, index) {
+    let stream = fs.createWriteStream(path.join(`./icon/${url.toString().substr(43, 65)}`));
+    request(url).pipe(stream).on("close", function (err) {
+        if (err) throw err;
+        ws.row(index + 1).setHeight(30);
+        try {
+            ws.addImage({
+                path: `./icon/${url.toString().substr(43, 65)}`,
+                type: 'picture',
+                position: {
+                    type: 'twoCellAnchor',
+                    from: {
+                        col: 1,
+                        colOff: 0,
+                        row: index + 1,
+                        rowOff: 0,
+                    },
+                    to: {
+                        col: 2,
+                        colOff: 0,
+                        row: index + 2,
+                        rowOff: 0,
+                    },
+                },
+            });
+        } catch (err) {
+            ws.cell(index + 1, 1).string("無效").style(style);
+        }
+    })
+}
+
 function delDir(path) { //資料夾/檔案迴圈刪除 程式碼來自:https://www.itread01.com/content/1541387043.html
     let files = [];
     if (fs.existsSync(path)) {
@@ -69,34 +100,7 @@ CurseForge.getMods({sort: 2, pageSize: config.PageSize, gameVersion: config.Game
                 let data = JSON.parse(JSON.stringify(mods[i]));
                 if (Date.parse(data.created) > Date.parse(config.Date.split(">")[0]) && Date.parse(data.created) < Date.parse(config.Date.split(">")[1])) {
                     num++
-                    let stream = fs.createWriteStream(path.join(`./icon/${data.logo.url.toString().substr(43, 65)}`));
-                    await request(data.logo.url).pipe(stream).on("close", function (err) {
-                        if (err) throw err;
-                        ws.row(num + 1).setHeight(30);
-                        try {
-                            ws.addImage({
-                                path: `./icon/${data.logo.url.toString().substr(43, 65)}`,
-                                type: 'picture',
-                                position: {
-                                    type: 'twoCellAnchor',
-                                    from: {
-                                        col: 1,
-                                        colOff: 0,
-                                        row: num + 1,
-                                        rowOff: 0,
-                                    },
-                                    to: {
-                                        col: 2,
-                                        colOff: 0,
-                                        row: num + 2,
-                                        rowOff: 0,
-                                    },
-                                },
-                            });
-                        } catch (err) {
-                            ws.cell(num + 1, 1).string("無效").style(style);
-                        }
-                    })
+                    addImage(data.logo.url, num);
                     let Translated;
                     await translate(data.summary, {to: 'zh-TW'}).then(res => {
                         console.log(`翻譯進度: ${TranslationProgress / num * 100}%`)
