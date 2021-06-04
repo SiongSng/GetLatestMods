@@ -30,6 +30,7 @@ function delDir(path) { //資料夾/檔案迴圈刪除 程式碼來自:https://w
 let wb = new Excel.Workbook();
 let ws = wb.addWorksheet('模組資料表格');
 
+ws.column(1).setWidth(15 / 3);
 ws.column(2).setWidth(30);
 ws.column(3).setWidth(75);
 ws.column(4).setWidth(60);
@@ -71,8 +72,7 @@ CurseForge.getMods({sort: 2, pageSize: config.PageSize, gameVersion: config.Game
                     let stream = fs.createWriteStream(path.join(`./icon/${data.logo.url.toString().substr(43, 65)}`));
                     await request(data.logo.url).pipe(stream).on("close", function (err) {
                         if (err) throw err;
-                        ws.row(num).setHeight(70 / 3);
-                        ws.column(1).setWidth(15 / 3);
+                        ws.row(num + 1).setHeight(30);
                         try {
                             ws.addImage({
                                 path: `./icon/${data.logo.url.toString().substr(43, 65)}`,
