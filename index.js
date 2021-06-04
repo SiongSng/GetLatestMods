@@ -6,14 +6,9 @@ const Excel = require('excel4node');
 const fs = require("fs");
 const path = require("path");
 const config = require(`${process.cwd()}/config.json`)  //config
-const options = {};
 const translate = require('@vitalets/google-translate-api');
 let TranslationProgress = 0;
 let num = 0;
-
-function addImage() {
-
-}
 
 function delDir(path) { //資料夾/檔案迴圈刪除 程式碼來自:https://www.itread01.com/content/1541387043.html
     let files = [];
@@ -33,7 +28,7 @@ function delDir(path) { //資料夾/檔案迴圈刪除 程式碼來自:https://w
 
 
 let wb = new Excel.Workbook();
-let ws = wb.addWorksheet('模組資料表格', options);
+let ws = wb.addWorksheet('模組資料表格');
 
 ws.column(2).setWidth(30);
 ws.column(3).setWidth(75);
@@ -58,11 +53,12 @@ ws.cell(1, 6).string("下載數量").style(style)
 ws.cell(1, 7).string("更新日期").style(style)
 ws.cell(1, 8).string("創建日期").style(style)
 
-let dirPath = path.join(__dirname, "icon"); //暫存模組圖示的位置
-delDir(dirPath)
-if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath);
-}
+delDir("./icon")
+ if (!fs.existsSync("./icon")) {
+     fs.mkdir("./icon",function (err){
+         if (err) throw err;
+     });
+ }
 
 CurseForge.getMods({sort: 2, pageSize: config.PageSize, gameVersion: config.GameVersion}).then((mods) => {
 

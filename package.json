@@ -15,15 +15,16 @@
   "devDependencies": {
     "@vitalets/google-translate-api": "^7.0.0",
     "excel4node": "^1.7.2",
-    "node-xlsx": "^0.16.1",
     "pkg": "^5.2.1",
     "request": "^2.88.2"
   },
   "bin": "index.js",
   "pkg": {
     "assets": [
-      "/node_modules/mc-curseforge-api",
-      "/node_modules/node-xlsx"
+      "node_modules/mc-curseforge-api",
+      "node_modules/excel4node",
+      "node_modules/request",
+      "node_modules/@vitalets/google-translate-api"
     ]
   }
 }
