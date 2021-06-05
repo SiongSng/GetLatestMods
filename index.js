@@ -10,6 +10,10 @@ const translate = require('@vitalets/google-translate-api');
 let TranslationProgress = 0;
 let num = 0;
 
+if(config.PageSize > 1000){
+    return console.log("由於您輸入的抓取數值大於 1000 ，可能會導致API使用過量，因此系統自動停止此操作。")
+}
+
 async function Translate(scr) {
     let opt;
     await translate(scr, {to: 'zh-TW'}).then(res => {
@@ -115,8 +119,7 @@ if (!fs.existsSync("./icon")) {
         if (err) throw err;
     });
 }
-
-CurseForge.getMods({sort: 2, pageSize: config.PageSize, gameVersion: config.GameVersion}).then((mods) => {
+CurseForge.getMods({sort: 2, pageSize: config.PageSize * 10, gameVersion: config.GameVersion}).then((mods) => {
 
         async function Run() {
             console.log("正在翻譯模組敘述中，請稍後...")
@@ -124,6 +127,7 @@ CurseForge.getMods({sort: 2, pageSize: config.PageSize, gameVersion: config.Game
                 let data = JSON.parse(JSON.stringify(mods[i]));
                 if (Date.parse(data.created) > Date.parse(config.Date.split(">")[0]) && Date.parse(data.created) < Date.parse(config.Date.split(">")[1])) {
                     num++
+                    if (num >= config.PageSize) break;
                     await addImage(data.logo.url, num);
                     console.log(`翻譯進度: ${TranslationProgress / num * 100}%`)
                     TranslationProgress++;
