@@ -7,17 +7,17 @@ const fs = require("fs");
 const path = require("path");
 const config = require(`${process.cwd()}/config.json`)  //config
 const translate = require('@vitalets/google-translate-api');
-let TranslationProgress = 0;
 let num = 0;
+let temp = [];
 
-if(config.PageSize > 1000){
+if (config.PageSize > 1000) {
     return console.log("由於您輸入的抓取數值大於 1000 ，可能會導致API使用過量，因此系統自動停止此操作。")
 }
 
 async function Translate(scr) {
     let opt;
     await translate(scr, {to: 'zh-TW'}).then(res => {
-        opt = res.text
+        opt = res.text.toString()
             .replace("暴民", "生物")
             .replace("暴徒", "生物")
             .replace("Mods", "模組")
@@ -29,21 +29,23 @@ async function Translate(scr) {
             .replace("支持", "支援")
             .replace("XP", "經驗值")
             .replace("香草", "原版")
-            .replace("老闆", "BOSS");
+            .replace("老闆", "BOSS")
+            .replace("祖母綠", "綠寶石");
+
     }).catch(err => {
         console.error(err);
     });
     return opt;
 }
 
-function addImage(url, index) {
-    let stream = fs.createWriteStream(path.join(`./icon/${url.toString().substr(43, 65)}`));
+function addImage(url, index, title) {
+    let stream = fs.createWriteStream(path.join(`./icon/${title}`));
     request(url).pipe(stream).on("close", function (err) {
         if (err) throw err;
         ws.row(index + 1).setHeight(30);
         try {
             ws.addImage({
-                path: `./icon/${url.toString().substr(43, 65)}`,
+                path: `./icon/${title}`,
                 type: 'picture',
                 position: {
                     type: 'twoCellAnchor',
@@ -83,7 +85,6 @@ function delDir(path) { //資料夾/檔案迴圈刪除 程式碼來自:https://w
     }
 }
 
-
 let wb = new Excel.Workbook();
 let ws = wb.addWorksheet('模組資料表格');
 
@@ -119,39 +120,52 @@ if (!fs.existsSync("./icon")) {
         if (err) throw err;
     });
 }
-CurseForge.getMods({sort: 2, pageSize: config.PageSize * 10, gameVersion: config.GameVersion}).then((mods) => {
 
-        async function Run() {
-            console.log("正在翻譯模組敘述中，請稍後...")
-            for (let i = 0; i < mods.length; i++) {
-                let data = JSON.parse(JSON.stringify(mods[i]));
-                if (Date.parse(data.created) > Date.parse(config.Date.split(">")[0]) && Date.parse(data.created) < Date.parse(config.Date.split(">")[1])) {
-                    num++
-                    if (num >= config.PageSize) break;
-                    await addImage(data.logo.url, num);
-                    console.log(`翻譯進度: ${TranslationProgress / num * 100}%`)
-                    TranslationProgress++;
-                    ws.cell(num + 1, 2).string(data.name).style(style);
-                    ws.cell(num + 1, 3).string(await Translate(data.name)).style(style);
-                    ws.cell(num + 1, 4).string(data.summary).style(style);
-                    ws.cell(num + 1, 5).string(await Translate(data.summary)).style(style);
-                    ws.cell(num + 1, 6).link(data.url).style(style);
-                    ws.cell(num + 1, 7).number(data.downloads).style(style);
-                    ws.cell(num + 1, 8).string(data.updated).style(style);
-                    ws.cell(num + 1, 9).string(data.created).style(style);
-                }
-            }
-        }
+let modCount = config.PageSize * 10;
+for (let i = 0; i < modCount / 50; i++) {
+    let pageSize = 50;
+    if (parseInt(modCount / 50) === i) {
+        pageSize = modCount % 50
+    }
+    GetMods(i, pageSize)
+}
 
-        Run().then(() => {
-            console.log(`翻譯進度: 100%`)
-            wb.write('opt.xlsx', function (err) {
+function GetMods(index, pageSize) {
+    CurseForge.getMods({sort: 2, index: index, pageSize: pageSize, gameVersion: config.GameVersion}).then((mods) => {
+        Run(mods, index).then(() => wb.write('opt.xlsx', function (err) {
                 if (err) {
                     console.error(err);
                 } else {
-                    console.log("成功寫入試算表"); // Prints out an instance of a node.js fs.Stats object
+                    console.log(`執行緒-${index}| 翻譯進度: 100%`);
+                    console.log(`執行緒-${index}| 成功寫入試算表`);
                 }
-            });
-        });
+            })
+        )
+    });
+
+    async function Run(mods, index) {
+        let TranslationProgress = 0;
+        console.log(`執行緒-${index}| 正在翻譯模組敘述中，請稍後...`)
+        for (let i = 0; i < mods.length; i++) {
+            let data = mods[i];
+            if (Date.parse(data.created) > Date.parse(config.Date.split(">")[0]) && Date.parse(data.created) < Date.parse(config.Date.split(">")[1])) {
+                if (temp.includes(data.id)) continue;
+                temp.push(data.id);
+                num++
+                if (num >= config.PageSize) break;
+                addImage(data.logo.url, num, data.logo.title);
+                console.log(`執行緒-${index}| 翻譯進度: ${TranslationProgress / 50 * 100}%`)
+                TranslationProgress++;
+                let summary = data.summary
+                ws.cell(num + 1, 2).string(String(data.name)).style(style);
+                ws.cell(num + 1, 4).string(String(summary)).style(style);
+                ws.cell(num + 1, 6).link(data.url).style(style);
+                ws.cell(num + 1, 7).number(data.downloads).style(style);
+                ws.cell(num + 1, 8).string(String(data.updated)).style(style);
+                ws.cell(num + 1, 9).string(String(data.created)).style(style);
+                await ws.cell(num + 1, 3).string(await Translate(data.name)).style(style);
+                await ws.cell(num + 1, 5).string(await Translate(summary)).style(style);
+            }
+        }
     }
-);
+}
